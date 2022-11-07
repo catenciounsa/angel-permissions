@@ -1,0 +1,48 @@
+const path = require("path");
+const solc = require("solc");
+const fs = require("fs-extra");
+
+const buildPath = path.resolve(__dirname, "build");
+fs.removeSync(buildPath);
+
+const userPermissionPath = path.resolve(__dirname, "contracts", "Campaign.sol");
+const source = fs.readFileSync(userPermissionPath, "utf8");
+
+/*
+// code FROMHERE
+// run this code to compile and debug
+var input = {
+    language: 'Solidity',
+    sources: {
+        'Campaign.sol' : {
+            content: source
+        }
+    },
+    settings: {
+        outputSelection: {
+            '*': {
+                '*': [ '*' ]
+            }
+        }
+    }
+};
+
+var output = JSON.parse ( solc.compile(JSON.stringify(input)));
+console.log("INICIO");
+console.log(output);
+console.log("FIN");
+// code TOHERE
+*/
+
+//Run this code to generate the json.
+const output = solc.compile(source, 1).contracts;
+
+fs.ensureDirSync(buildPath);
+console.log(output);
+
+for (let contract in output) {
+  fs.outputJsonSync(
+    path.resolve(buildPath, contract.replace(":", "") + ".json"),
+    output[contract]
+  );
+}
